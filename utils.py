@@ -65,3 +65,42 @@ def init_normal(m):
         torch.nn.init.normal_(m.weight.data, 1.0, 0.02)
         torch.nn.init.constant_(m.bias.data, 0.0)
 
+def nonmax_supression(prediction, confthresh=0.5, iouthresh=0.4):
+    '''
+    B = 10647 for a 416x416 image with scales (13, 26, 52)
+    prediction shape:(N, B, C+5) eval:(bx, by, bw, bh, po, [p1, ... pc])
+    returns outputs which is a list of tensors
+    '''
+
+    prediction[..., :4] = xywh_xyxy(prediction[..., :4])
+    outputs = [None for _ in range(len(prediction))]
+
+    for i, pi in enumerate(prediction):
+        pi = pi[pi[:, 4] >= confthresh]
+
+        if not pi.size(0):
+            continue
+        
+        scores = pi[:, 4] * pi[:, 5:].max(1)[0]
+        pi = pi[(-scores).argsort()]
+        confs, idxs = pi[:, 5:].max(1, keepdim=True)
+        detections = torch.cat((pi[:, :5], confs.float(), idxs.float()), 1)
+
+        keepbox = []
+        while detections.size(0):
+            overlap = bbox_iou(detections[0, :4].unsqueeze(0), detections[:, :4]) > iouthresh
+            matchlabel = detections[0, -1] == detections[:, -1]
+
+            invalid = overlap & matchlabel
+            weights = detections[invalid, 4:5]
+            detections[0, :4] = (weights * detections[invalid, :4]).sum(0) / weights.sum()
+
+            keepbox += [detections[0]]
+            detections = detections[~invalid]
+
+        if keepbox:
+            outputs[i] = torch.stack(keepbox)
+  
+    return outputs
+
+
