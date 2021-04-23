@@ -9,6 +9,8 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+from torchvision import transforms
+
 def parse_blocks(path):
     file = open(path)
     lines = file.read().split('\n')
