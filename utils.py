@@ -26,13 +26,6 @@ def parse_blocks(path):
     
     return blocks
 
-def to_cpu(tensor):
-    return tensor.detach().cpu()
-
-def img_resize(image, size):
-    image = F.interpolate(image.unsqueeze(0), size=size, mode="nearest").squeeze(0)
-    return image
-
 def get_names(path):
     names = []
     with open(path) as f:
@@ -40,6 +33,13 @@ def get_names(path):
         [names.append(line.lstrip().rstrip()) for line in lines]
 
     return list(filter(None, names))
+
+def to_cpu(tensor):
+    return tensor.detach().cpu()
+
+def img_resize(image, size):
+    image = F.interpolate(image.unsqueeze(0), size=size, mode="nearest").squeeze(0)
+    return image
 
 def xywh_xyxy(x):
     y = x.new(x.shape)
