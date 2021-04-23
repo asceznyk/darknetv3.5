@@ -103,4 +103,48 @@ def nonmax_supression(prediction, confthresh=0.5, iouthresh=0.4):
   
     return outputs
 
+def build_targets(targets, sclanchors, predclasses, predboxes, ignthresh, mode='logitbox'):
+    BoolTensor = torch.cuda.BoolTensor if predboxes.is_cuda else torch.BoolTensor
+    FloatTensor = torch.cuda.FloatTensor if predboxes.is_cuda else torch.FloatTensor
+
+    N, A, G, C = predboxes.size(0), predboxes.size(1), predclasses.size(2), predclasses.size(-1)
+
+    objmask, noobjmask = BoolTensor(N, A, G, G).fill_(0), BoolTensor(N, A, G, G).fill_(1)
+    x, y = FloatTensor(N, A, G, G).fill_(0), FloatTensor(N, A, G, G).fill_(0)
+    w, h = FloatTensor(N, A, G, G).fill_(0), FloatTensor(N, A, G, G).fill_(0)
+    trueclasses = FloatTensor(N, A, G, G, C).fill_(0)
+
+    batchidxs, labels = targets[:, :2].long().t()
+    targetboxes = targets[:, 2:6] * G
+
+    gx, gy = targetboxes[:, :2].t()
+    gw, gh = targetboxes[:, 2:].t()
+    gi, gj = gx.long(), gy.long()
+
+    ious = torch.stack([bbox_whiou(anchor, targetboxes[:, 2:]) for anchor in sclanchors])
+    bestious, bestn = ious.max(0)
+
+    objmask[batchidxs, bestn, gj, gi] = 1
+    noobjmask[batchidxs, bestn, gj, gi] = 0
+
+    for i, anchoriou in enumerate(ious.t()):
+        noobjmask[batchidxs[i], anchoriou > ignthresh, gj[i], gi[i]] = 0
+
+    trueclasses[batchidxs, bestn, gj, gi, labels] = 1
+
+    trueconfs = objmask.float()
+
+    x[batchidxs, bestn, gj, gi] = gx - gx.floor()
+    y[batchidxs, bestn, gj, gi] = gy - gy.floor()
+
+    if mode == 'logitbox':
+        w[batchidxs, bestn, gj, gi] = torch.log(gw / sclanchors[bestn][:, 0] + 1e-16)
+        h[batchidxs, bestn, gj, gi] = torch.log(gh / sclanchors[bestn][:, 1] + 1e-16)
+
+    elif mode == 'probbox':
+        w[batchidxs, bestn, gj, gi] = targetboxes[:, 2]
+        h[batchidxs, bestn, gj, gi] = targetboxes[:, 3]
+
+    return objmask, noobjmask, x, y, w, h, trueclasses, trueconfs
+
 
