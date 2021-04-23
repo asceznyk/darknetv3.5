@@ -11,6 +11,8 @@ from torch.utils.data import Dataset, DataLoader
 
 from torchvision import transforms
 
+from augmentations import *
+
 class ImageFolder(Dataset):
     def __init__(self, fpath, transform=None):
         self.files = [p for p in sorted(glob.glob("%s/*.*" % fpath)) if p[-4:] == '.jpg']
