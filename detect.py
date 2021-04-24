@@ -26,7 +26,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def detect_darknet(options):
     imgsize = 416
     model = Darknet(options.cfg, imgwh=imgsize).to(device)
-    model.load_state_dict(torch.load(options.weights))
+    model.load_state_dict(torch.load(options.weights, map_location=device))
 
     print('showing the actual boxes...')
     show_boxes(options.names, options.testdir, imgsize, options.savedir)
