@@ -30,7 +30,7 @@ def detect_darknet(options):
     model.load_state_dict(torch.load(options.weights, map_location=device))
 
     print('showing the actual boxes...')
-    show_boxes(names, options.testdir, imgsize, options.savedir)
+    show_boxes(names, options.testdir, imgsize, options.actualdir)
 
     print('the predictions made by the model...')
     predict_boxes(model, names, options.testdir, imgsize, 1, options.savedir)
@@ -42,6 +42,7 @@ if __name__ == '__main__':
     parser.add_argument('--cfg', type=str, help='a .cfg file for model architecture')
     parser.add_argument('--weights', type=str, help='path to pre-trained weights')
     parser.add_argument('--savedir', type=str, help='folder to save detected images')
+    parser.add_argument('--boxdir', type=str, help='images with ground-truth boxes drawn')
 
     options = parser.parse_args()
 
