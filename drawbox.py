@@ -6,6 +6,8 @@ import torch
 
 from torch.utils.data import Dataset, DataLoader
 
+from torch.autograd import Variable
+
 from torchvision import transforms
 
 from utils import *
