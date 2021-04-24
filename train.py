@@ -31,8 +31,7 @@ def train_darknet(options):
     ptptweightspath = options.ptweightspth
     ckptpth = options.ckptpth
     traindir, validdir = options.traindir, options.validdir
-    pcolor = (255, 0, 0)
-
+    
     ##hyperparameters
     epochs = options.epochs
     batchsize = options.batchsize
