@@ -25,14 +25,15 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def detect_darknet(options):
     imgsize = 416
+    names = get_names(options.names)
     model = Darknet(options.cfg, imgwh=imgsize).to(device)
     model.load_state_dict(torch.load(options.weights, map_location=device))
 
     print('showing the actual boxes...')
-    show_boxes(options.names, options.testdir, imgsize, options.savedir)
+    show_boxes(names, options.testdir, imgsize, options.savedir)
 
     print('the predictions made by the model...')
-    predict_boxes(model, options.names, options.testdir, imgsize, 1, options.savedir)
+    predict_boxes(model, names, options.testdir, imgsize, 1, options.savedir)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
