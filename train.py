@@ -28,10 +28,10 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def train_darknet(options):
     cfgpath = options.cfg
-    ptptweightspath = options.ptweightspth
+    ptweightspath = options.ptweightspth
     ckptpth = options.ckptpth
     traindir, validdir = options.traindir, options.validdir
-    
+
     ##hyperparameters
     epochs = options.epochs
     batchsize = options.batchsize
