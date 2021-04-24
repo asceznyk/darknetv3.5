@@ -9,7 +9,7 @@ from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
 
 from utils import *
-from augmentations import AUGMENTATIONTRANSFORMS, DEFAULTTRANSFORMS
+from augmentations import AUGMENTATIONTRANSFORMS, DEFAULTTRANSFORMS, Resize
 from datasets import ImageFolder
 
 def draw_outputs(img, outputs, names, color=(0,255,0)):
