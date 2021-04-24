@@ -28,7 +28,7 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def train_darknet(options):
     cfgpath = options.cfg
-    ptweightspath = options.ptweightspth
+    ptweights = options.ptweights
     ckptpth = options.ckptpth
     traindir, validdir = options.traindir, options.validdir
 
@@ -45,10 +45,10 @@ def train_darknet(options):
 
     print(model)
 
-    if ptweightspath.endswith('.pth'):
-        model.load_state_dict(torch.load(ptweightspath))
+    if ptweights.endswith('.pth'):
+        model.load_state_dict(torch.load(ptweights, map_location=device))
     else:
-        model.load_weights(ptweightspath)
+        model.load_weights(ptweights)
 
     traindata = ListDataset(traindir, imgsize, multiscale=True, transform=AUGMENTATIONTRANSFORMS)
     validdata = ListDataset(validdir, imgsize, multiscale=False, transform=DEFAULTTRANSFORMS)
@@ -132,7 +132,7 @@ if __name__ == '__main__':
     parser.add_argument('--traindir', type=str, help='path to training set')
     parser.add_argument('--validdir', type=str, help='path to validation set')
     parser.add_argument('--cfg', type=str, help='a .cfg file for model architecture')
-    parser.add_argument('--ptweightspth', type=str, help='path to pretrained weights')
+    parser.add_argument('--ptweights', type=str, help='path to pretrained weights')
     parser.add_argument('--ckptpth', type=str, help='path to save trained model')
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--batchsize', type=int, default=4)
