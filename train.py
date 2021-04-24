@@ -117,19 +117,16 @@ def train_darknet(options):
 
         patience -= 1
         if epochloss <= bestloss:
-            torch.save(model.state_dict(), customwpath)
+            torch.save(model.state_dict(), ckptpth)
             bestloss = epochloss
             patience = orgpatience
 
-            print(f'saved best model weights at epoch {e} to {customwpath}')
+            print(f'saved best model weights at epoch {e} to {ckptpth}')
 
         if not patience:
             print(f'early stopping.. validation loss did not improve from {bestloss:.3f}')
             print(f'you can change the patience value... current value {orgpatience} epochs')
             break
-
-def test_func(options):
-    print(options.traindir, options.validdir)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
