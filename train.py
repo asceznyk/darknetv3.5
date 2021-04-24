@@ -40,7 +40,7 @@ def train_darknet(options):
     ncpu = options.ncpu
     imgsize = 416
     ckptinterval = 2
- 
+
     model = Darknet(cfgpath, imgwh=imgsize).to(device)
     model.apply(init_normal)
 
@@ -67,7 +67,7 @@ def train_darknet(options):
     criterion = ComputeLoss(model, IoULoss)
 
     bestloss = 1e+5
-    patience = 1e+5
+    patience = options.patience
     orgpatience = patience
     for e in range(epochs):
 
@@ -137,6 +137,7 @@ if __name__ == '__main__':
     parser.add_argument('--ckptpth', type=str, help='path to save trained model')
     parser.add_argument('--epochs', type=int, default=100)
     parser.add_argument('--batchsize', type=int, default=4)
+    parser.add_argument('--patience', type=int, default=10)
     parser.add_argument('--ncpu', type=int, default=2)
 
     options = parser.parse_args()

@@ -34,7 +34,7 @@ def draw_outputs(img, outputs, names, color=(0,255,0)):
 
     return img
 
-def predict_boxes(model, names, directory, imgsize, batchsize, color=(0, 255, 0)):
+def predict_boxes(model, names, directory, imgsize, batchsize, savedir, color=(0, 255, 0)):
     print('')
     print(f'showing from dir {directory}')
 
@@ -50,7 +50,6 @@ def predict_boxes(model, names, directory, imgsize, batchsize, color=(0, 255, 0)
         Tensor = torch.cuda.FloatTensor if torch.cuda.is_available() else torch.FloatTensor
         img = Variable(img.type(Tensor))
 
-        print(path[0], imgsize)
         _, predimg = load_img(path[0], imgsize)
 
         model.eval()
@@ -59,10 +58,10 @@ def predict_boxes(model, names, directory, imgsize, batchsize, color=(0, 255, 0)
 
         if bboxes is not None:
             predimg = draw_outputs(predimg, bboxes.numpy(), names, color)
-        
-        cv2_imshow(predimg)
 
-def show_boxes(names, directory, imgsize):
+        cv2.imwrite(savedir+'/'+path[0].split('/')[1], predimg)
+
+def show_boxes(names, directory, imgsize, savedir):
     print(f'showing from dir {directory}')
 
     paths = os.listdir(directory)
@@ -81,6 +80,6 @@ def show_boxes(names, directory, imgsize):
 
         predimg = draw_outputs(img, bboxes, names)
 
-        cv2.imwrite(predimg)
+        cv2.imwrite(savedir+'/'+pimg.split('/')[1], predimg)
 
 
