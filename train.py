@@ -136,18 +136,18 @@ model.load_state_dict(torch.load(customwpath))
 '''
 
 def test_func(options):
-    print(options.train_dir, options.valid_dir)
+    print(options.traindir, options.validdir)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--train-dir', type=str, help='path to training set')
-    parser.add_argument('--valid-dir', type=str, help='path to validation set')
+    parser.add_argument('--traindir', type=str, help='path to training set')
+    parser.add_argument('--validdir', type=str, help='path to validation set')
     parser.add_argument('--names', type=str, help='path to file which contains all class names')
     parser.add_argument('--cfg', type=str, help='a .cfg file for model architecture')
-    parser.add_argument('--ptweights-pth', type=str, help='path to pretrained weights')
-    parser.add_argument('--ckpt-pth', type=str, help='path to save trained model')
+    parser.add_argument('--ptweightspth', type=str, help='path to pretrained weights')
+    parser.add_argument('--ckptpth', type=str, help='path to save trained model')
     parser.add_argument('--epochs', type=int)
-    parser.add_argument('--batch-size', type=int)
+    parser.add_argument('--batchsize', type=int)
 
     options = parser.parse_args()
 
