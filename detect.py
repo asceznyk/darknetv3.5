@@ -30,7 +30,7 @@ def detect_darknet(options):
     model.load_state_dict(torch.load(options.weights, map_location=device))
 
     print('showing the actual boxes...')
-    show_boxes(names, options.testdir, imgsize, options.actualdir)
+    show_boxes(names, options.testdir, imgsize, options.boxdir)
 
     print('the predictions made by the model...')
     predict_boxes(model, names, options.testdir, imgsize, 1, options.savedir)
