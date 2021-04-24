@@ -135,7 +135,8 @@ for e in range(epochs):
 model.load_state_dict(torch.load(customwpath))
 '''
 
-print(options.train_dir, options.valid_dir)
+def test_func(options):
+    print(options.train_dir, options.valid_dir)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -149,3 +150,5 @@ if __name__ == '__main__':
     parser.add_argument('--batch-size', type=int)
 
     options = parser.parse_args()
+
+    test_func(options)
