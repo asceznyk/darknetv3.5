@@ -2,6 +2,7 @@ import os
 import cv2
 import glob
 import math
+import yaml
 import random
 import argparse
 import numpy as np
@@ -24,17 +25,19 @@ from drawbox import *
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 def detect_darknet(options):
-    imgsize = 416
+    with open('hyperparams.yaml', 'r') as f:
+        hyp = yaml.safe_load(f)
+
     pcolor = (255, 0, 0)
     names = get_names(options.names)
     model = Darknet(options.cfg, imgwh=imgsize).to(device)
     model.load_state_dict(torch.load(options.weights, map_location=device))
 
     print('showing the actual boxes...')
-    show_boxes(names, options.testdir, imgsize, options.boxdir)
+    show_boxes(names, options.testdir, hyp['imgsize'], options.boxdir)
 
     print('the predictions made by the model...')
-    predict_boxes(model, names, options.testdir, imgsize, 1, options.savedir, pcolor)
+    predict_boxes(model, names, options.testdir, hyp['imgsize'], 1, options.savedir, pcolor)
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

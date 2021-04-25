@@ -37,7 +37,8 @@ class BboxLoss:
         self.mseloss = nn.MSELoss()
         self.bceloss = nn.BCEWithLogitsLoss()
 
-        self.boxscale = 1
+        self.box = 1
+        self.boxscale = self.box
         self.objscale = 1
         self.noobjscale = 100
         self.classscale = 1
@@ -82,24 +83,30 @@ class BboxLoss:
         return boxloss, confloss, classloss
 
 class IoULoss:
-    def __init__(self, imgwh):
+    def __init__(self, hyp):
         super(IoULoss, self).__init__()
-        self.imgwh = imgwh
+        self.imgwh = hyp['imgsize']
 
-        bce = nn.BCEWithLogitsLoss()
-        self.flbce = FocalLoss(bce)
+        self.hyp = hyp
 
-        self.boxscale = 0.05
+        bcecls = BCEWithLogitsLoss(pos_weight=hyp['clspw'])
+        bceobj = BCEWithLogitsLoss(pos_weight=hyp['objpw'])
+
+        self.bcecls, self.bceobj = FocalLoss(bcecls), FocalLoss(bceobj)
+
+        self.obj, self.cls, self.box = hyp['obj'], hyp['cls'], hyp['box'] 
+
+       ''' self.boxscale = 0.05
         self.objscale = 50
         self.noobjscale = 100
-        self.classscale = 1
+        self.classscale = 1'''
 
         self.ignthresh = 0.5
 
     def __call__(self, output, target, anchors):
-        ##assumes output is a rank-5 tensor (N, A, G, G, C+5)
-        
-        nclasses = output.size(-1) - 5 
+        ##assumes output is a rank-5 tensor (N, A, G, G, C+5) 
+
+        nclasses = output.size(-1) - 5
         predboxes, predconfs, predclasses = torch.split(output, (4, 1, nclasses), -1)
         predconfs = predconfs.squeeze(-1)
 
@@ -125,21 +132,21 @@ class IoULoss:
 
         iou = calc_ious(predboxes[objmask], trueboxes[objmask], x1y1x2y2=False, mode='ciou')
 
-        boxloss =  (1.0 - iou).mean()
+        boxloss = (1.0 - iou).mean()
 
-        objloss =   self.flbce(predconfs[objmask], trueconfs[objmask]) #self.flbce(predconfs, trueconfs)
-        noobjloss = self.flbce(predconfs[noobjmask], trueconfs[noobjmask])
-        confloss = self.objscale * objloss + self.noobjscale * noobjloss
-        #confloss = self.objscale * objloss
+        objloss = self.bceobj(predconfs, trueconfs) #self.flbce(predconfs, trueconfs)
+        #noobjloss = self.flbce(predconfs[noobjmask], trueconfs[noobjmask])
+        #confloss = self.objscale * objloss + self.noobjscale * noobjloss
+        confloss = self.obj * objloss
 
-        classloss = self.classscale * self.flbce(predclasses[objmask], trueclasses[objmask])
+        classloss = self.cls * self.bcecls(predclasses[objmask], trueclasses[objmask])
 
         return boxloss, confloss, classloss
 
 class ComputeLoss:
-    def __init__(self, model, loss):
+    def __init__(self, model, hyp, loss):
         super(ComputeLoss, self).__init__()
-        self.loss = loss(model.imgwh)
+        self.loss = loss(hyp)
 
         self.imgwh = model.imgwh
         self.hyperparams = model.hyperparams
@@ -154,9 +161,9 @@ class ComputeLoss:
             confloss += lconf
             classloss += lclass
 
-        boxloss *= self.loss.boxscale
+        boxloss *= self.loss.box
         totalloss  = boxloss + confloss + classloss
-    
+
         return totalloss
 
 

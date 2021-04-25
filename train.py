@@ -4,6 +4,7 @@ import glob
 import math
 import random
 import argparse
+import yaml
 import numpy as np
 
 import torch
@@ -24,7 +25,8 @@ from models import *
 from losses import *
 from datasets import *
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+cuda = torch.cuda.is_available()
+device = torch.device("cuda" if cuda else "cpu")
 
 def train_darknet(options):
     cfgpath = options.cfg
@@ -32,12 +34,22 @@ def train_darknet(options):
     ckptpth = options.ckptpth
     traindir, validdir = options.traindir, options.validdir
 
-    ##hyperparameters
+    if options.lossfn == 'bboxloss':
+        lossfn = BboxLoss
+    else:
+        lossfn = IoULoss
+
+    scaler = amp.GradScaler(enabled=cuda)
+
+    with open('hyperparams.yaml', 'r') as f:
+        hyp = yaml.safe_load(f)
+
+    imgsize = hyp['imgsize']
+
     epochs = options.epochs
     batchsize = options.batchsize
     accumgradient = 2
     ncpu = options.ncpu
-    imgsize = 416
     ckptinterval = 2
 
     model = Darknet(cfgpath, imgwh=imgsize).to(device)
@@ -63,7 +75,7 @@ def train_darknet(options):
 
     optimizer = torch.optim.Adam(model.parameters())
 
-    criterion = ComputeLoss(model, IoULoss)
+    criterion = ComputeLoss(model, hyp, lossfn)
 
     bestloss = 1e+5
     patience = options.patience
@@ -73,19 +85,21 @@ def train_darknet(options):
         model.train()
         epochloss = 0
         for b, (_, imgs, targets) in enumerate(trainloader):
-            batchesdone = len(trainloader) * e + b
-            imgs = Variable(imgs.to(device))
-            targets = Variable(targets.to(device), requires_grad=False)
+            with amp.autocast(enabled=cuda):
+                batchesdone = len(trainloader) * e + b
+                imgs = Variable(imgs.to(device))
+                targets = Variable(targets.to(device), requires_grad=False)
 
-            outputs = model(imgs, 'train')
-            loss = criterion(outputs, targets) 
+                outputs = model(imgs, 'train')
+                loss = criterion(outputs, targets)
 
-            loss.backward()
+            scaler.scale(loss).backward()
 
             if  batchesdone % accumgradient == 0:
-                optimizer.step()
+                scaler.step(optimizer)
+                scaler.update()
                 optimizer.zero_grad()
-            
+
             batchloss = to_cpu(loss).item()
             epochloss += batchloss
 
@@ -104,7 +118,7 @@ def train_darknet(options):
 
                 outputs = model(imgs, 'train')
                 loss = criterion(outputs, targets)
-                
+
                 batchloss = to_cpu(loss).item()
                 epochloss += batchloss
 
@@ -138,6 +152,7 @@ if __name__ == '__main__':
     parser.add_argument('--batchsize', type=int, default=4)
     parser.add_argument('--patience', type=int, default=10)
     parser.add_argument('--ncpu', type=int, default=2)
+    parser.add_argument('--lossfn', type=str, help='type bboxloss or iouloss', default='iouloss')
 
     options = parser.parse_args()
 
