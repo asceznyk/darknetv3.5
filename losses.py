@@ -89,8 +89,8 @@ class IoULoss:
 
         self.hyp = hyp
 
-        bcecls = BCEWithLogitsLoss(pos_weight=hyp['clspw'])
-        bceobj = BCEWithLogitsLoss(pos_weight=hyp['objpw'])
+        bcecls = nn.BCEWithLogitsLoss(pos_weight=hyp['clspw'])
+        bceobj = nn.BCEWithLogitsLoss(pos_weight=hyp['objpw'])
 
         self.bcecls, self.bceobj = FocalLoss(bcecls), FocalLoss(bceobj)
 
