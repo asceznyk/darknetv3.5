@@ -96,7 +96,7 @@ class IoULoss:
 
         self.obj, self.cls, self.box = hyp['obj'], hyp['cls'], hyp['box'] 
 
-       ''' self.boxscale = 0.05
+        '''self.boxscale = 0.05
         self.objscale = 50
         self.noobjscale = 100
         self.classscale = 1'''
