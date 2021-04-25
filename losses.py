@@ -31,9 +31,9 @@ class FocalLoss(nn.Module):
             return loss 
 
 class BboxLoss:
-    def __init__(self, imgwh):
+    def __init__(self, hyp):
         super(BboxLoss, self).__init__()
-        self.imgwh = imgwh
+        self.imgwh = hyp['imgsize']
         self.mseloss = nn.MSELoss()
         self.bceloss = nn.BCEWithLogitsLoss()
 
