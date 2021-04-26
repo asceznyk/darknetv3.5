@@ -284,7 +284,6 @@ class ModelEMA:
         with torch.no_grad():
             self.updates += 1
             d = self.decay(self.updates)
-
             msd = model.state_dict()
 
             for k, v in self.ema.state_dict().items():
