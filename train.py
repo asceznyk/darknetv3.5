@@ -111,11 +111,11 @@ def train_darknet(options):
         epochloss = 0
         for b, (_, imgs, targets) in enumerate(validloader):
             with torch.no_grad():
-                imgs = Variable(imgs.to(device), requires_grad=False)
-                targets = Variable(targets.to(device), requires_grad=False)
+                #imgs = Variable(imgs.to(device), requires_grad=False)
+                #targets = Variable(targets.to(device), requires_grad=False)
 
-                outputs = model(imgs, 'train')
-                loss = criterion(outputs, targets)
+                outputs = model(imgs.to(device), 'train')
+                loss = criterion(outputs, targets.to(device))
 
                 batchloss = to_cpu(loss).item()
                 epochloss += batchloss
