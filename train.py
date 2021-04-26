@@ -73,7 +73,21 @@ def train_darknet(options):
                              num_workers=1, pin_memory=True,
                              collate_fn=validdata.collate_fn)
 
-    optimizer = torch.optim.Adam(model.parameters())
+    #optimizer = torch.optim.Adam(model.parameters())
+
+    pg0, pg1, pg2 = [], [], []  # optimizer parameter groups
+    for k, v in model.named_modules():
+        if hasattr(v, 'bias') and isinstance(v.bias, nn.Parameter):
+            pg2.append(v.bias)  # biases
+        if isinstance(v, nn.BatchNorm2d):
+            pg0.append(v.weight)  # no decay
+        elif hasattr(v, 'weight') and isinstance(v.weight, nn.Parameter):
+            pg1.append(v.weight)  # apply decay
+
+    optimizer = torch.optim.Adam(pg0)  # adjust beta1 to momentum
+    optimizer.add_param_group({'params': pg1})  # add pg1 with weight_decay
+    optimizer.add_param_group({'params': pg2})  # add pg2 (biases)s
+    del pg0, pg1, pg2
 
     criterion = ComputeLoss(model, hyp, lossfn)
 
