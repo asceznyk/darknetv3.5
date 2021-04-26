@@ -87,15 +87,13 @@ def train_darknet(options):
         for b, (_, imgs, targets) in enumerate(trainloader):
             with amp.autocast(enabled=cuda):
                 batchesdone = len(trainloader) * e + b
-                imgs = Variable(imgs.to(device))
-                targets = Variable(targets.to(device), requires_grad=False)
 
-                outputs = model(imgs, 'train')
-                loss = criterion(outputs, targets)
+                outputs = model(imgs.to(device), 'train')
+                loss = criterion(outputs, targets.to(device))
 
             scaler.scale(loss).backward()
 
-            if  batchesdone % accumgradient == 0:
+            if batchesdone % accumgradient == 0:
                 scaler.step(optimizer)
                 scaler.update()
                 optimizer.zero_grad()
