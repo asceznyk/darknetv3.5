@@ -114,8 +114,8 @@ def train_darknet(options):
                 #imgs = Variable(imgs.to(device), requires_grad=False)
                 #targets = Variable(targets.to(device), requires_grad=False)
 
-                outputs = model(imgs.to(device), 'train')
-                loss = criterion(outputs, targets.to(device))
+                outputs = model(Variable(imgs.to(device), requires_grad=False), 'train')
+                loss = criterion(outputs, Variable(targets.to(device), requires_grad=False))
 
                 batchloss = to_cpu(loss).item()
                 epochloss += batchloss
