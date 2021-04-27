@@ -202,4 +202,29 @@ class Darknet(nn.Module):
                 conv.weight.data.copy_(wweight)
                 ptr += nweights
 
+class ModelEMA:
+    """
+    implements tf.train.ExponentialMovingAverage: 
+    https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage
+    """
+
+    def __init__(self, model, decay, updates=0):
+        self.ema = deepcopy(model).eval()
+        self.updates = updates
+        self.decay = lambda x : decay * (1 - math.exp(-x / 2000))
+
+        for p in self.ema.parameters():
+            p.requires_grad(False)
+
+    def update(self, model):
+        with torch.no_grad():
+            self.updates += 1
+            d = self.decay(self.updates)
+            msd = model.state_dict()
+
+            for k, v in self.ema.state_dict().items():
+                v *= d
+                v += (1. - d) * msd[k].detach()
+
+
 
