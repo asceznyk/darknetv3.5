@@ -224,8 +224,9 @@ class ModelEMA:
             msd = model.state_dict()
 
             for k, v in self.ema.state_dict().items():
-                v *= d
-                v += (1. - d) * msd[k].detach()
+                if v.dtype.is_floating_point:
+                    v *= d
+                    v += (1. - d) * msd[k].detach()
 
 
 
