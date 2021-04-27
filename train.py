@@ -53,9 +53,11 @@ def train_darknet(options):
     ckptinterval = 2
 
     model = Darknet(cfgpath, imgwh=imgsize).to(device)
-    model.apply(init_normal)
+    #model.apply(init_normal)
 
     print(model)
+
+    ema = ModelEMA(model)
 
     if ptweights.endswith('.pth'):
         model.load_state_dict(torch.load(ptweights, map_location=device))
@@ -84,7 +86,7 @@ def train_darknet(options):
         elif hasattr(v, 'weight') and isinstance(v.weight, nn.Parameter):
             pg1.append(v.weight)  # apply decay
 
-    optimizer = torch.optim.Adam(pg0)  # adjust beta1 to momentum
+    optimizer = torch.optim.Adam(pg0, lr=hyp['lr0'], betas(hyp['momentum'], 0.999))
     optimizer.add_param_group({'params': pg1})  # add pg1 with weight_decay
     optimizer.add_param_group({'params': pg2})  # add pg2 (biases)s
     del pg0, pg1, pg2
@@ -111,6 +113,9 @@ def train_darknet(options):
                 scaler.step(optimizer)
                 scaler.update()
                 optimizer.zero_grad()
+
+                if ema:
+                    ema.update(model)
 
             batchloss = to_cpu(loss).item()
             epochloss += batchloss
@@ -142,7 +147,13 @@ def train_darknet(options):
 
         patience -= 1
         if epochloss <= bestloss:
-            torch.save(model.state_dict(), ckptpth)
+            ckpt = msd = model.state_dict()
+            if ema:
+                ckpt = {
+                    'model': msd,
+                    'ema':ema.ema.state_dict()
+                }
+            torch.save(ckpt, ckptpth)
             bestloss = epochloss
             patience = orgpatience
 

@@ -33,7 +33,12 @@ def detect_darknet(options):
     pcolor = (255, 0, 0)
     names = get_names(options.names)
     model = Darknet(options.cfg, imgwh=imgsize).to(device)
-    model.load_state_dict(torch.load(options.weights, map_location=device))
+
+    ckpt = torch.load(options.weights, map_location=device)
+    if ckpt.get('ema'):
+        model.load_state_dict(ckpt['ema'])
+    else:
+        model.load_state_dict(ckpt)
 
     print('showing the actual boxes...')
     show_boxes(names, options.testdir, imgsize, options.boxdir)
