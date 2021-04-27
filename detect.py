@@ -35,6 +35,7 @@ def detect_darknet(options):
     model = Darknet(options.cfg, imgwh=imgsize).to(device)
 
     ckpt = torch.load(options.weights, map_location=device)
+    print(ckpt)
     if ckpt.get('ema'):
         model.load_state_dict(ckpt['ema'])
     else:
