@@ -87,7 +87,7 @@ def train_darknet(options):
             pg1.append(v.weight)  # apply decay
 
     optimizer = torch.optim.Adam(pg0, lr=hyp['lr0'], betas=(hyp['momentum'], 0.999))
-    optimizer.add_param_group({'params': pg1, 'weight_decay':hyp['weightdecay']}) 
+    optimizer.add_param_group({'params': pg1, 'weight_decay':hyp['weightdecay']})
     optimizer.add_param_group({'params': pg2})  # add pg2 (biases)s
     del pg0, pg1, pg2
 
