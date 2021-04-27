@@ -214,7 +214,7 @@ class ModelEMA:
         self.decay = lambda x : decay * (1 - math.exp(-x / 2000))
 
         for p in self.ema.parameters():
-            p.requires_grad(False)
+            p.requires_grad_(False)
 
     def update(self, model):
         with torch.no_grad():
