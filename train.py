@@ -115,6 +115,8 @@ def train_darknet(options):
                 optimizer.zero_grad()
 
                 if ema:
+                    print(f'updated ema weights! at batch {b} epoch {e}')
+
                     ema.update(model)
 
             batchloss = to_cpu(loss).item()
