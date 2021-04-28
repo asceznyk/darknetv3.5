@@ -37,17 +37,13 @@ class BboxLoss:
         self.mseloss = nn.MSELoss()
         self.bceloss = nn.BCEWithLogitsLoss()
 
-        self.box = 1
-        self.boxscale = self.box
-        self.objscale = 1
-        self.noobjscale = 100
-        self.classscale = 1
+        self.box, self.obj, self.noobj, self.cls = 1, 1, 100, 1
 
         self.ignthresh = 0.5
 
     def __call__(self, output, target, anchors):
         ##assumes output is a rank-5 tensor (N, A, G, G, C+5)
-        
+
         nclasses = output.size(-1) - 5 
         predboxes, predconfs, predclasses = torch.split(output, (4, 1, nclasses), -1)
         predconfs = predconfs.squeeze(-1)
@@ -76,9 +72,9 @@ class BboxLoss:
 
         objloss = self.bceloss(predconfs[objmask], trueconfs[objmask]) 
         noobjloss = self.bceloss(predconfs[noobjmask], trueconfs[noobjmask])
-        confloss = self.objscale * objloss + self.noobjscale * noobjloss
+        confloss = self.obj * objloss + self.noobj * noobjloss
 
-        classloss = self.classscale * self.bceloss(predclasses[objmask], trueclasses[objmask])
+        classloss = self.cls * self.bceloss(predclasses[objmask], trueclasses[objmask])
 
         return boxloss, confloss, classloss
 
@@ -94,7 +90,7 @@ class IoULoss:
 
         self.bcecls, self.bceobj = FocalLoss(bcecls), FocalLoss(bceobj)
 
-        self.obj, self.cls, self.box = hyp['obj'], hyp['cls'], hyp['box'] 
+        self.obj, self.cls, self.box = hyp['obj'], hyp['cls'], hyp['box']
 
         '''self.boxscale = 0.05
         self.objscale = 50
