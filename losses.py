@@ -92,15 +92,10 @@ class IoULoss:
 
         self.obj, self.cls, self.box = hyp['obj'], hyp['cls'], hyp['box']
 
-        '''self.boxscale = 0.05
-        self.objscale = 50
-        self.noobjscale = 100
-        self.classscale = 1'''
-
         self.ignthresh = 0.5
 
     def __call__(self, output, target, anchors):
-        ##assumes output is a rank-5 tensor (N, A, G, G, C+5) 
+        ##assumes output is a rank-5 tensor with shape (N, A, G, G, C+5)  
 
         nclasses = output.size(-1) - 5
         predboxes, predconfs, predclasses = torch.split(output, (4, 1, nclasses), -1)
@@ -114,10 +109,10 @@ class IoULoss:
 
         objmask, noobjmask, tbx, tby, tbw, tbh, trueclasses, trueconfs =  \
                 build_targets(
-                    target, self.sclanchors, predclasses, 
+                    target, self.sclanchors, predclasses,
                     predboxes, self.ignthresh, mode='probbox'
                 )
-    
+
         numanchors = len(self.anchors)
 
         pbx, pby = torch.sigmoid(predboxes[..., 0]), torch.sigmoid(predboxes[..., 1])
@@ -137,7 +132,8 @@ class IoULoss:
 
         classloss = self.cls * self.bcecls(predclasses[objmask], trueclasses[objmask])
 
-        return boxloss, confloss, classloss
+        N = output.size(0)
+        return N * boxloss, N * confloss, N * classloss
 
 class ComputeLoss:
     def __init__(self, model, hyp, loss):
