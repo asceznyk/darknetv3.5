@@ -122,9 +122,11 @@ class IoULoss:
         predboxes = torch.stack([pbx, pby, pbw, pbh], -1)
         trueboxes = torch.stack([tbx, tby, tbw, tbh], -1)
 
-        iou = calc_ious(predboxes[objmask], trueboxes[objmask], x1y1x2y2=False, mode='ciou')
+        ious = calc_ious(predboxes[objmask], trueboxes[objmask], x1y1x2y2=False, mode='ciou')
 
-        boxloss = (1.0 - iou).mean()
+        boxloss = (1.0 - ious).mean()
+
+        trueconfs[objmask] = ious
 
         objloss = self.bceobj(predconfs, trueconfs) #self.flbce(predconfs, trueconfs)
         #noobjloss = self.flbce(predconfs[noobjmask], trueconfs[noobjmask])
