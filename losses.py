@@ -44,7 +44,7 @@ class BboxLoss:
     def __call__(self, output, target, anchors):
         ##assumes output is a rank-5 tensor (N, A, G, G, C+5)
 
-        nclasses = output.size(-1) - 5 
+        nclasses = output.size(-1) - 5
         predboxes, predconfs, predclasses = torch.split(output, (4, 1, nclasses), -1)
         predconfs = predconfs.squeeze(-1)
 
@@ -87,8 +87,9 @@ class IoULoss:
 
         bcecls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(hyp['clspw']))
         bceobj = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(hyp['objpw']))
-
-        self.bcecls, self.bceobj = FocalLoss(bcecls), FocalLoss(bceobj)
+        
+        g = hyp['flgamma']
+        self.bcecls, self.bceobj = FocalLoss(bcecls, gamma=g), FocalLoss(bceobj, gamma=g)
 
         self.obj, self.cls, self.box = hyp['obj'], hyp['cls'], hyp['box']
 
