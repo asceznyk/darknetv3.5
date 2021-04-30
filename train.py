@@ -91,7 +91,7 @@ def train_darknet(options):
     optimizer.add_param_group({'params': pg2})  # add pg2 (biases)s
     del pg0, pg1, pg2
 
-    criterion = ComputeLoss(model, hyp, lossfn)
+    criterion = lossfn(hyp)
 
     bestloss = 1e+5
     patience = options.patience

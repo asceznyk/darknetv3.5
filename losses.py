@@ -28,10 +28,10 @@ class FocalLoss(nn.Module):
         elif self.redcution == 'sum':
             return loss.sum()
         else:
-            return loss 
+            return loss
 
 class BboxLoss:
-    def __init__(self, hyp):
+    def __init__(self, model, hyp):
         super(BboxLoss, self).__init__()
         self.imgwh = hyp['imgsize']
         self.mseloss = nn.MSELoss()
@@ -41,124 +41,93 @@ class BboxLoss:
 
         self.ignthresh = 0.5
 
-    def __call__(self, output, target, anchors):
-        ##assumes output is a rank-5 tensor (N, A, G, G, C+5)
+    def __call__(self, outputs, target, anchors):
+        boxloss, confloss, classloss = 0, 0, 0
+        for i, (pi, anchors) in enumerate(outputs):
+            nclasses = pi.size(-1) - 5
+            predboxes, predconfs, predclasses = torch.split(pi, (4, 1, nclasses), -1)
+            predconfs = predconfs.squeeze(-1)
 
-        nclasses = output.size(-1) - 5
-        predboxes, predconfs, predclasses = torch.split(output, (4, 1, nclasses), -1)
-        predconfs = predconfs.squeeze(-1)
+            gridx, gridy, sclanchors, self.stride = compute_grid(
+                self.imgwh, predboxes.size(2), self.anchors, pi.is_cuda
+            )
 
-        self.anchors = anchors
+            objmask, noobjmask, ttx, tty, ttw, tth, trueclasses, trueconfs =  \
+                    build_targets(
+                        target, sclanchors, predclasses,
+                        predboxes, self.ignthresh, mode='logitbox'
+                    )
 
-        self.gridx, self.gridy, self.sclanchors, self.stride = compute_grid(
-            self.imgwh, predboxes.size(2), self.anchors, output.is_cuda
-        )
+            ptx, pty = torch.sigmoid(predboxes[..., 0]), torch.sigmoid(predboxes[..., 1])
+            ptw, pth = predboxes[..., 2], predboxes[..., 3]
 
-        objmask, noobjmask, ttx, tty, ttw, tth, trueclasses, trueconfs =  \
-                build_targets(
-                    target, self.sclanchors, predclasses, 
-                    predboxes, self.ignthresh, mode='logitbox'
-                )
+            xloss = self.mseloss(ptx[objmask], ttx[objmask])
+            yloss = self.mseloss(pty[objmask], tty[objmask])
+            wloss = self.mseloss(ptw[objmask], ttw[objmask])
+            hloss = self.mseloss(pth[objmask], tth[objmask])
 
-        ptx, pty = torch.sigmoid(predboxes[..., 0]), torch.sigmoid(predboxes[..., 1]) 
-        ptw, pth = predboxes[..., 2], predboxes[..., 3]
+            boxloss += self.box * (xloss + yloss + wloss + hloss)
 
-        xloss = self.mseloss(ptx[objmask], ttx[objmask])
-        yloss = self.mseloss(pty[objmask], tty[objmask])
-        wloss = self.mseloss(ptw[objmask], ttw[objmask])
-        hloss = self.mseloss(pth[objmask], tth[objmask])
+            objloss = self.bceloss(predconfs[objmask], trueconfs[objmask])
+            noobjloss = self.bceloss(predconfs[noobjmask], trueconfs[noobjmask])
+            confloss += self.obj * objloss + self.noobj * noobjloss
 
-        boxloss = xloss + yloss + wloss + hloss
+            classloss += self.cls * self.bceloss(predclasses[objmask], trueclasses[objmask])
 
-        objloss = self.bceloss(predconfs[objmask], trueconfs[objmask]) 
-        noobjloss = self.bceloss(predconfs[noobjmask], trueconfs[noobjmask])
-        confloss = self.obj * objloss + self.noobj * noobjloss
-
-        classloss = self.cls * self.bceloss(predclasses[objmask], trueclasses[objmask])
-
-        return boxloss, confloss, classloss
+        return boxloss + confloss + classloss
 
 class IoULoss:
     def __init__(self, hyp):
         super(IoULoss, self).__init__()
-        self.imgwh = hyp['imgsize']
-
         self.hyp = hyp
+        self.imgwh = hyp['imgsize']
+        self.model = model
 
         bcecls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(hyp['clspw']))
         bceobj = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(hyp['objpw']))
-        
+
         g = hyp['flgamma']
         self.bcecls, self.bceobj = FocalLoss(bcecls, gamma=g), FocalLoss(bceobj, gamma=g)
-
-        self.obj, self.cls, self.box = hyp['obj'], hyp['cls'], hyp['box']
-
         self.ignthresh = 0.5
 
-    def __call__(self, output, target, anchors):
-        ##assumes output is a rank-5 tensor with shape (N, A, G, G, C+5)  
+    def __call__(self, outputs, target):
+        boxloss, objloss, clsloss = 0, 0, 0
+        for i, pi, anchors in enumerate(outputs):
+            N = pi.size(0)
+            C = pi.size(-1) - 5
+            predboxes, predconfs, predclasses = torch.split(pi, (4, 1, C), -1)
+            predconfs = predconfs.squeeze(-1)
 
-        nclasses = output.size(-1) - 5
-        predboxes, predconfs, predclasses = torch.split(output, (4, 1, nclasses), -1)
-        predconfs = predconfs.squeeze(-1)
+            gridx, gridy, sclanchors, self.stride = compute_grid(
+                self.imgwh, predboxes.size(2), anchors, pi.is_cuda
+            )
 
-        self.anchors = anchors
+            objmask, noobjmask, tbx, tby, tbw, tbh, trueclasses, trueconfs =  \
+                    build_targets(
+                        target, sclanchors, predclasses,
+                        predboxes, self.ignthresh, mode='probbox'
+                    )
 
-        self.gridx, self.gridy, self.sclanchors, self.stride = compute_grid(
-            self.imgwh, predboxes.size(2), self.anchors, output.is_cuda
-        )
+            numanchors = len(self.anchors)
 
-        objmask, noobjmask, tbx, tby, tbw, tbh, trueclasses, trueconfs =  \
-                build_targets(
-                    target, self.sclanchors, predclasses,
-                    predboxes, self.ignthresh, mode='probbox'
-                )
+            pbx, pby = torch.sigmoid(predboxes[..., 0]), torch.sigmoid(predboxes[..., 1])
+            pbw = torch.exp(predboxes[..., 2]) * sclanchors[:, 0:1].view((1, numanchors, 1, 1))
+            pbh = torch.exp(predboxes[..., 3]) * sclanchors[:, 1:2].view((1, numanchors, 1, 1))
+            predboxes = torch.stack([pbx, pby, pbw, pbh], -1)
+            trueboxes = torch.stack([tbx, tby, tbw, tbh], -1)
 
-        numanchors = len(self.anchors)
+            ious = calc_ious(predboxes[objmask], trueboxes[objmask], x1y1x2y2=False, mode='ciou')
+            boxloss += (1.0 - ious).mean()
 
-        pbx, pby = torch.sigmoid(predboxes[..., 0]), torch.sigmoid(predboxes[..., 1])
-        pbw = torch.exp(predboxes[..., 2]) * self.sclanchors[:, 0:1].view((1, numanchors, 1, 1))
-        pbh = torch.exp(predboxes[..., 3]) * self.sclanchors[:, 1:2].view((1, numanchors, 1, 1))
-        predboxes = torch.stack([pbx, pby, pbw, pbh], -1)
-        trueboxes = torch.stack([tbx, tby, tbw, tbh], -1)
+            trueconfs[objmask] = ious
+            objloss += self.bceobj(predconfs, trueconfs)
 
-        ious = calc_ious(predboxes[objmask], trueboxes[objmask], x1y1x2y2=False, mode='ciou')
+            clsloss += self.bcecls(predclasses[objmask], trueclasses[objmask])
 
-        boxloss = (1.0 - ious).mean()
+        boxloss *= self.hyp['box']
+        objloss *= self.hyp['obj']
+        clsloss *= self.hyp['cls']
 
-        trueconfs[objmask] = ious
-
-        objloss = self.bceobj(predconfs, trueconfs) #self.flbce(predconfs, trueconfs)
-        #noobjloss = self.flbce(predconfs[noobjmask], trueconfs[noobjmask])
-        #confloss = self.objscale * objloss + self.noobjscale * noobjloss
-        confloss = self.obj * objloss
-
-        classloss = self.cls * self.bcecls(predclasses[objmask], trueclasses[objmask])
-
-        N = output.size(0)
-        return N * boxloss, N * confloss, N * classloss
-
-class ComputeLoss:
-    def __init__(self, model, hyp, loss):
-        super(ComputeLoss, self).__init__()
-        self.loss = loss(hyp)
-
-        self.imgwh = model.imgwh
-        self.hyperparams = model.hyperparams
-
-    def __call__(self, outputs, targets):
-        preds, allanchors = outputs
-
-        boxloss, confloss, classloss = 0, 0, 0
-        for i, pi in enumerate(preds):
-            lbox, lconf, lclass = self.loss(pi, targets, allanchors[i])
-            boxloss += lbox
-            confloss += lconf
-            classloss += lclass
-
-        boxloss *= self.loss.box
-        totalloss  = boxloss + confloss + classloss
-
-        return totalloss
+        return N * (boxloss + objloss + clsloss)
 
 
