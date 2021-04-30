@@ -51,7 +51,7 @@ class BboxLoss:
             predconfs = predconfs.squeeze(-1)
 
             gridx, gridy, sclanchors, self.stride = compute_grid(
-                self.imgwh, predboxes.size(2), self.anchors, pi.is_cuda
+                self.imgwh, predboxes.size(2), anchors, pi.is_cuda
             )
 
             objmask, noobjmask, ttx, tty, ttw, tth, trueclasses, trueconfs =  \
@@ -111,7 +111,7 @@ class IoULoss:
                         predboxes, self.ignthresh, mode='probbox'
                     )
 
-            numanchors = len(self.anchors)
+            numanchors = len(anchors)
 
             pbx, pby = torch.sigmoid(predboxes[..., 0]), torch.sigmoid(predboxes[..., 1])
             pbw = torch.exp(predboxes[..., 2]) * sclanchors[:, 0:1].view((1, numanchors, 1, 1))
