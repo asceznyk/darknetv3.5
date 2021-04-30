@@ -122,7 +122,7 @@ class IoULoss:
             ious = calc_ious(predboxes[objmask], trueboxes[objmask], x1y1x2y2=False, mode='ciou')
             boxloss += (1.0 - ious).mean()
 
-            trueconfs[objmask] = ious
+            trueconfs[objmask] = ious.detach().clamp(0).type(trueconfs.dtype)
             objloss += self.bceobj(predconfs, trueconfs)
 
             clsloss += self.bcecls(predclasses[objmask], trueclasses[objmask])
