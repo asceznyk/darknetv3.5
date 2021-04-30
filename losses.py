@@ -42,7 +42,7 @@ class BboxLoss:
         self.ignthresh = 0.5
 
     def __call__(self, outputs, target):
-        boxloss, objloss, clsloss = 0, 0, 0
+        boxloss, confloss, classloss = 0, 0, 0
         preds, allanchors = outputs
         for i, pi in enumerate(preds):
             anchors = allanchors[i]
