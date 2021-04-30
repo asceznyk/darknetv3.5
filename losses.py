@@ -91,7 +91,7 @@ class IoULoss:
 
     def __call__(self, outputs, target):
         boxloss, objloss, clsloss = 0, 0, 0
-        for i, pi, anchors in enumerate(outputs):
+        for i, (pi, anchors) in enumerate(outputs):
             N = pi.size(0)
             C = pi.size(-1) - 5
             predboxes, predconfs, predclasses = torch.split(pi, (4, 1, C), -1)
