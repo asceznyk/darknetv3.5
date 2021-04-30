@@ -41,9 +41,11 @@ class BboxLoss:
 
         self.ignthresh = 0.5
 
-    def __call__(self, outputs, target, anchors):
-        boxloss, confloss, classloss = 0, 0, 0
-        for i, (pi, anchors) in enumerate(outputs):
+    def __call__(self, outputs, target):
+        boxloss, objloss, clsloss = 0, 0, 0
+        preds, allanchors = outputs
+        for i, pi in enumerate(preds):
+            anchors = allanchors[i]
             nclasses = pi.size(-1) - 5
             predboxes, predconfs, predclasses = torch.split(pi, (4, 1, nclasses), -1)
             predconfs = predconfs.squeeze(-1)
@@ -91,7 +93,8 @@ class IoULoss:
 
     def __call__(self, outputs, target):
         boxloss, objloss, clsloss = 0, 0, 0
-        for i, (pi, anchors) in enumerate(outputs):
+        preds, allanchors = outputs
+        for i, pi in enumerate(preds):
             N = pi.size(0)
             C = pi.size(-1) - 5
             predboxes, predconfs, predclasses = torch.split(pi, (4, 1, C), -1)
