@@ -31,7 +31,7 @@ class FocalLoss(nn.Module):
             return loss
 
 class BboxLoss:
-    def __init__(self, model, hyp):
+    def __init__(self, hyp):
         super(BboxLoss, self).__init__()
         self.imgwh = hyp['imgsize']
         self.mseloss = nn.MSELoss()
@@ -80,8 +80,7 @@ class IoULoss:
     def __init__(self, hyp):
         super(IoULoss, self).__init__()
         self.hyp = hyp
-        self.imgwh = hyp['imgsize']
-        self.model = model
+        self.imgwh = hyp['imgsize'] 
 
         bcecls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(hyp['clspw']))
         bceobj = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(hyp['objpw']))
