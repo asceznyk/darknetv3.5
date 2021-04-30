@@ -95,6 +95,7 @@ class IoULoss:
         boxloss, objloss, clsloss = 0, 0, 0
         preds, allanchors = outputs
         for i, pi in enumerate(preds):
+            anchors = allanchors[i]
             N = pi.size(0)
             C = pi.size(-1) - 5
             predboxes, predconfs, predclasses = torch.split(pi, (4, 1, C), -1)
