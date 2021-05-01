@@ -119,7 +119,7 @@ class IoULoss:
             predboxes = torch.stack([pbx, pby, pbw, pbh], -1)
             trueboxes = torch.stack([tbx, tby, tbw, tbh], -1)
 
-            ious = calc_ious(predboxes[objmask], trueboxes[objmask], x1y1x2y2=False, mode='ciou')
+            ious = calc_ious(predboxes[objmask].T, trueboxes[objmask].T, x1y1x2y2=False, mode='ciou')
             boxloss += (1.0 - ious).mean()
 
             trueconfs[objmask] = ious.detach().clamp(0).type(trueconfs.dtype)
