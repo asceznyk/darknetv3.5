@@ -82,7 +82,7 @@ class IoULoss:
     def __init__(self, hyp):
         super(IoULoss, self).__init__()
         self.hyp = hyp
-        self.imgwh = hyp['imgsize'] 
+        self.imgwh = hyp['imgsize']
 
         bcecls = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(hyp['clspw']))
         bceobj = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(hyp['objpw']))
