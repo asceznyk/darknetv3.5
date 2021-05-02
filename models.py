@@ -136,6 +136,8 @@ class Darknet(nn.Module):
         self.imgwh = imgwh
         self.blocks = parse_blocks(cfgpath)
         self.hyperparams, self.modulelist = create_module(self.blocks, self.imgwh)
+
+        initialize_weights(self)
     
     def forward(self, x, mode='detect'):
         convs, detections, allanchors = [], [], []
@@ -202,14 +204,14 @@ class Darknet(nn.Module):
                 wweight = torch.from_numpy(weights[ptr : ptr+nweights]).view_as(conv.weight)
                 conv.weight.data.copy_(wweight)
                 ptr += nweights
-    
+
     def initialize_biases(self, cf=None):  # initialize biases into Detect(), cf is class frequency
         # https://arxiv.org/abs/1708.02002 section 3.3
         # cf = torch.bincount(torch.tensor(np.concatenate(dataset.labels, 0)[:, 0]).long(), minlength=nc) + 1.
-        m = self.model[-1]  # Detect() module
+        m = self.mode # Detect() module
         for mi, s in zip(m.m, m.stride):  # from
             b = mi.bias.view(m.na, -1)  # conv.bias(255) to (3,85)
-            b.data[:, 4] += math.log(8 / (640 / s) ** 2)  # obj (8 objects per 640 image)
+            b.data[:, 4] += math.log(8 / (self.imgwh / s) ** 2)  # obj (8 objects per 640 image)
             b.data[:, 5:] += math.log(0.6 / (m.nc - 0.99)) if cf is None else torch.log(cf / cf.sum())  # cls
             mi.bias = torch.nn.Parameter(b.view(-1), requires_grad=True)
 
