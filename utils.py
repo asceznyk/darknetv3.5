@@ -111,7 +111,7 @@ def bbox_iou(box1, box2, x1y1x2y2=True):
     # Union Area
     b1area = (b1x2 - b1x1 + 1) * (b1y2 - b1y1 + 1)
     b2area = (b2x2 - b2x1 + 1) * (b2y2 - b2y1 + 1)
-    
+
     unionarea = b1area + b2area - interarea + 1e-16
     iou = interarea / unionarea
 
@@ -173,7 +173,7 @@ def nonmax_supression(prediction, confthresh=0.5, iouthresh=0.4):
 
         if not pi.size(0):
             continue
-        
+ 
         scores = pi[:, 4] * pi[:, 5:].max(1)[0]
         pi = pi[(-scores).argsort()]
         confs, idxs = pi[:, 5:].max(1, keepdim=True)
@@ -242,12 +242,16 @@ def build_targets(targets, sclanchors, predclasses, predboxes, ignthresh, mode='
 
 def compute_grid(imgwh, gsize, anchors, cuda=True):
     FloatTensor = torch.cuda.FloatTensor if cuda else torch.FloatTensor
-    stride = imgwh / gsize 
+    stride = imgwh / gsize
     g = gsize
     gridx = torch.arange(g).repeat(g, 1).view([1,1,g,g]).type(FloatTensor)
     gridy = torch.arange(g).repeat(g, 1).t().view([1,1,g,g]).type(FloatTensor)
     sclanchors = FloatTensor([(aw / stride, ah / stride) for aw, ah in anchors])
-    
+
     return gridx, gridy, sclanchors, stride
+
+def one_cycle(y1=0.0, y2=1.0, steps=100):
+    # lambda function for sinusoidal ramp from y1 to y2
+    return lambda x: ((1 - math.cos(x * math.pi / steps)) / 2) * (y2 - y1) + y1
 
 
