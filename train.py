@@ -104,7 +104,7 @@ def train_darknet(options):
     bestloss = 1e+5
     patience = options.patience
     orgpatience = patience
-    or e in range(epochs):
+    for e in range(epochs):
 
         model.train()
         epochloss = 0
