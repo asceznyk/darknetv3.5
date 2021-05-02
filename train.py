@@ -10,6 +10,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+import torch.optim.lr_scheduler as lr_scheduler
 
 from torch.cuda import amp
 from torch.autograd import Variable
@@ -52,8 +53,7 @@ def train_darknet(options):
     ncpu = options.ncpu
     ckptinterval = 2
 
-    model = Darknet(cfgpath, imgwh=imgsize).to(device)
-    #model.apply(init_normal)
+    model = Darknet(cfgpath, imgwh=imgsize).to(device) 
 
     print(model)
 
@@ -90,6 +90,13 @@ def train_darknet(options):
     optimizer.add_param_group({'params': pg1, 'weight_decay':hyp['weightdecay']})
     optimizer.add_param_group({'params': pg2})  # add pg2 (biases)s
     del pg0, pg1, pg2
+
+    if options.linearlr:
+        lf = lambda x: (1 - x / (epochs - 1)) * (1.0 - hyp['lrf']) + hyp['lrf']
+    else:
+        lf = one_cycle(1, hyp['lrf'], epochs)
+
+    scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
 
     criterion = lossfn(hyp)
 
@@ -178,6 +185,7 @@ if __name__ == '__main__':
     parser.add_argument('--patience', type=int, default=10)
     parser.add_argument('--ncpu', type=int, default=2)
     parser.add_argument('--lossfn', type=str, help='type bboxloss or iouloss', default='iouloss')
+    parser.add_argument('--linearlr', action='store_true', help='linear LR')
 
     options = parser.parse_args()
 
