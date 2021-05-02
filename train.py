@@ -99,20 +99,30 @@ def train_darknet(options):
     scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
 
     criterion = lossfn(hyp)
+    nw = max(round(hyp['warmupepochs'] * nb), 1000)
 
     bestloss = 1e+5
     patience = options.patience
     orgpatience = patience
-    for e in range(epochs):
+    or e in range(epochs):
 
         model.train()
         epochloss = 0
         for b, (_, imgs, targets) in enumerate(trainloader):
-            with amp.autocast(enabled=cuda):
-                batchesdone = len(trainloader) * e + b
+                batchesdone = ni = len(trainloader) * e + b
 
-                outputs = model(imgs.to(device), 'train')
-                loss = criterion(outputs, targets.to(device))
+                if ni <= nw:
+                    xi = [0, nw]  # x interp
+                    accumulate = max(1, np.interp(ni, xi, [1, nbs / total_batch_size]).round())
+                    for j, x in enumerate(optimizer.param_groups):
+                        # bias lr falls from 0.1 to lr0, all other lrs rise from 0.0 to lr0
+                        x['lr'] = np.interp(ni, xi, [hyp['warmupbiaslr'] if j == 2 else 0.0, x['initial_lr'] * lf(epoch)])
+                        if 'momentum' in x:
+                            x['momentum'] = np.interp(ni, xi, [hyp['warmupmomentum'], hyp['momentum']])
+
+                with amp.autocast(enabled=cuda):
+                    outputs = model(imgs.to(device), 'train')
+                    loss = criterion(outputs, targets.to(device))
 
             scaler.scale(loss).backward()
 
