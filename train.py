@@ -164,6 +164,8 @@ def train_darknet(options):
 
         print(f'validation loss at epoch {e}: {epochloss:.3f}')
 
+        scheduler.step()
+
         patience -= 1
         if epochloss <= bestloss:
             ckpt = msd = model.state_dict()
