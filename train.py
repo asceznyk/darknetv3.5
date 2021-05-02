@@ -99,7 +99,7 @@ def train_darknet(options):
     scheduler = lr_scheduler.LambdaLR(optimizer, lr_lambda=lf)
 
     criterion = lossfn(hyp)
-    nw = max(round(hyp['warmupepochs'] * nb), 1000)
+    nw = max(round(hyp['warmupepochs'] * len(trainloader)), 1000)
 
     bestloss = 1e+5
     patience = options.patience
