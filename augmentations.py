@@ -10,7 +10,7 @@ import imgaug.augmenters as iaa
 from imgaug.augmentables.bbs import BoundingBox, BoundingBoxesOnImage
 from imgaug.augmentables.segmaps import SegmentationMapsOnImage
 
-from utils import *
+from general import *
 
 class ImgAug(object):
     def __init__(self, augmentations=[]):

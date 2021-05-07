@@ -5,7 +5,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from utils import *
+from general import *
 
 class Upsample(nn.Module):
     def __init__(self, scale, mode):

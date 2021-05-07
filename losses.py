@@ -4,7 +4,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from utils import *
+from general import *
 
 class FocalLoss(nn.Module):
     def __init__(self, lossfn, alpha=0.25, gamma=1.5):
@@ -88,7 +88,10 @@ class IoULoss:
         bceobj = nn.BCEWithLogitsLoss(pos_weight=torch.tensor(hyp['objpw']))
 
         g = hyp['flgamma']
-        self.bcecls, self.bceobj = FocalLoss(bcecls, gamma=g), FocalLoss(bceobj, gamma=g)
+        if g > 0:
+            bcecls, bceobj = FocalLoss(bcecls, gamma=g), FocalLoss(bceobj, gamma=g)
+        self.bcecls, self.bceobj = bcecls, bceobj
+        
         self.ignthresh = 0.5
 
     def __call__(self, outputs, target):

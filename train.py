@@ -20,7 +20,7 @@ from torchvision import transforms
 
 from torchvision.transforms import ToTensor
 
-from utils import *
+from general import *
 from augmentations import *
 from models import *
 from losses import *
