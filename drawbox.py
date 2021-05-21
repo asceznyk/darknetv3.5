@@ -10,7 +10,7 @@ from torch.autograd import Variable
 
 from torchvision import transforms
 
-from utils import *
+from general import *
 from augmentations import AUGMENTATIONTRANSFORMS, DEFAULTTRANSFORMS, Resize
 from datasets import ImageFolder
 
