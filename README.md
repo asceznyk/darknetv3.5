@@ -9,7 +9,7 @@ $ git clone https://github.com/asceznyk/oddnet.git
 
 ## 2. Make directories
 ```
-$ mkdir outputs/ gtruths/
+$ mkdir outputs/ gtruths/model
 ```
 - outputs is for storing model predictions
 - gtruths is for stroing actual images with the ground truth boxes
@@ -27,7 +27,7 @@ $ mkdir outputs/ gtruths/
 1. Plain Object Detection 
 2. Custom Object Detection
 
-# 1. Plain Object Detection
+# Plain Object Detection
 
 ## Run the command
 ```
