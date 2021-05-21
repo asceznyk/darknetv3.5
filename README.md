@@ -31,7 +31,7 @@ $ mkdir outputs/ gtruths/
 
 ## Run the command
 ```
-$ python detect.py --testdir yourtestdir --names yournames.labels --cfg yolov.cfg --weights yolov3.weights --savedir outputs --boxdir gtruths
+$ python detect.py --testdir yourtestdir --names yournames.labels --cfg yolov3.cfg --weights yolov3.weights --savedir outputs --boxdir gtruths
 ```
 ### Arguments:
 - testdir: the directory with all the images to test on
