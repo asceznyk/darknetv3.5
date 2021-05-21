@@ -23,19 +23,19 @@ gtruths is for stroing actual images with the ground truth boxes
 $ python detect.py --testdir test --names test/names.labels --cfg model.cfg --weights custom.pth --savedir outputs/ --boxdir gtruths/ 
 ```
 Arguments:
-1. testdir: the directory with all the images to test on
-2. names: is a text file with all the names of classes in it like so
-3. an example .labels or .names file:
+- testdir: the directory with all the images to test on
+- names: is a text file with all the names of classes in it like so
+- an example .labels or .names file:
 ```
 class1
 class2
 class3
 ```
-4.cfg: is a model configuration file (this is for model architecture) 
+- cfg: is a model configuration file (this is for model architecture) 
 example .cfg files:
-https://github.com/pjreddie/darknet/blob/master/cfg/yolov3.cfg
-https://github.com/pjreddie/darknet/blob/master/cfg/yolov1.cfg
-5.weights: is a .pth or a .weights file you can get this from here:
-https://pjreddie.com/media/files/yolov3.weights
-6.savedir: Directory to save all the predictions of the model
-7.boxdir (optional):  Directory to save all the actual images wit ground truth boxes
+* https://github.com/pjreddie/darknet/blob/master/cfg/yolov3.cfg
+* https://github.com/pjreddie/darknet/blob/master/cfg/yolov1.cfg
+- weights: is a .pth or a .weights file you can get this from here:
+* https://pjreddie.com/media/files/yolov3.weights
+- savedir: Directory to save all the predictions of the model
+ -boxdir (optional):  Directory to save all the actual images wit ground truth boxes
