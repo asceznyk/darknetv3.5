@@ -1,1 +1,1 @@
-# oddnet (Object Detection Net, the d is added for branding)
+# oddnet (Object Detection Net, extra d for branding)
