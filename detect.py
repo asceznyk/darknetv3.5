@@ -17,7 +17,7 @@ from torchvision import transforms
 
 from torchvision.transforms import ToTensor
 
-from utils import *
+from general import *
 from models import *
 from datasets import *
 from drawbox import *
