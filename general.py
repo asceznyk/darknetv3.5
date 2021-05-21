@@ -184,7 +184,7 @@ def nonmax_supression(prediction, confthresh=0.5, iouthresh=0.4):
             overlap = bbox_iou(detections[0, :4].unsqueeze(0), detections[:, :4]) > iouthresh
             matchlabel = detections[0, -1] == detections[:, -1]
 
-            invalid = overlap & matchlabel
+            invalid = overlap & mtchlabel
             weights = detections[invalid, 4:5]
             detections[0, :4] = (weights * detections[invalid, :4]).sum(0) / weights.sum()
 
@@ -253,3 +253,5 @@ def compute_grid(imgwh, gsize, anchors, cuda=True):
 def one_cycle(y1=0.0, y2=1.0, steps=100):
     # lambda function for sinusoidal ramp from y1 to y2
     return lambda x: ((1 - math.cos(x * math.pi / steps)) / 2) * (y2 - y1) + y1
+
+def mean_ap():
