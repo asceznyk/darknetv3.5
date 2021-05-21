@@ -184,7 +184,7 @@ def nonmax_supression(prediction, confthresh=0.5, iouthresh=0.4):
             overlap = bbox_iou(detections[0, :4].unsqueeze(0), detections[:, :4]) > iouthresh
             matchlabel = detections[0, -1] == detections[:, -1]
 
-            invalid = overlap & mtchlabel
+            invalid = overlap & matchlabel
             weights = detections[invalid, 4:5]
             detections[0, :4] = (weights * detections[invalid, :4]).sum(0) / weights.sum()
 
