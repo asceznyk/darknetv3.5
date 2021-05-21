@@ -31,8 +31,8 @@ class1
 class2
 class3
 ```
-4.cfg: is a model configuration file (this is for model architecture)
-example .cfg files
+4.cfg: is a model configuration file (this is for model architecture) 
+example .cfg files:
 https://github.com/pjreddie/darknet/blob/master/cfg/yolov3.cfg
 https://github.com/pjreddie/darknet/blob/master/cfg/yolov1.cfg
 5.weights: is a .pth or a .weights file you can get this from here:
