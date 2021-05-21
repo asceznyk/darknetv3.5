@@ -1,1 +1,1 @@
-# darknetv3.5
+# oddnet (Object Detection Net, extra d for branding)
