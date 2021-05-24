@@ -76,3 +76,7 @@ $ !python3 train.py --traindir train/ --validdir valid/ --cfg yolov3custom.cfg -
 - validdir: the directory containing all the validation images AND labels
 - cfg: the custom model config file created by createmodel.sh (use the yolov3custom.cfg from the previous step)
 - ptweights: pre-trained weights (use the darknet53.conv.74 weights downloaded, refer step 7 [here](https://github.com/asceznyk/oddnet/blob/main/README.md#7-download-pre-trained-darknet53conv74-weights-for-custom-object-detection)
+- epochs: number of epochs to train the model
+- ckptpth: checkpoint path, the path to save your model in
+- lossfn: loss function, you have two loss functions bboxloss and iouloss, it is best to use bboxloss because iouloss is broken (if you can find a creative way to fix, great! please ping me on this [email id](asceznyk@gmail.com))
+- patience: this is the number of epochs to wait on stagnation of validation loss in order to stop training, the default value is 10 but you can change it to whatever you like
