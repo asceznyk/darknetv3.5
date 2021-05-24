@@ -75,4 +75,4 @@ $ !python3 train.py --traindir train/ --validdir valid/ --cfg yolov3custom.cfg -
 - traindir: the directory containing all the training images AND labels
 - validdir: the directory containing all the validation images AND labels
 - cfg: the custom model config file created by createmodel.sh (use the yolov3custom.cfg from the previous step)
-- ptweights: pre-trained weights (use the darknet53.conv.74 weights downloaded, refer step 7 [here] (https://github.com/asceznyk/oddnet/blob/main/README.md#7-download-pre-trained-darknet53conv74-weights-for-custom-object-detection)
+- ptweights: pre-trained weights (use the darknet53.conv.74 weights downloaded, refer step 7 [here](https://github.com/asceznyk/oddnet/blob/main/README.md#7-download-pre-trained-darknet53conv74-weights-for-custom-object-detection)
