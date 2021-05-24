@@ -41,7 +41,7 @@ $ mkdir outputs/ gtruths/model
 
 ## Run the command
 ```
-$ python detect.py --testdir yourtestdir --names yournames.labels --cfg yolov3.cfg --weights yolov3.weights --savedir outputs --boxdir gtruths
+$ python detect.py --testdir test --names yournames.labels --cfg yolov3.cfg --weights yolov3.weights --savedir outputs --boxdir gtruths
 ```
 ### Arguments:
 - testdir: the directory with all the test images ONLY
@@ -55,8 +55,8 @@ class3
   * use the yolov3.cfg file you downloaded 
 - weights: is a .pth or a .weights file you can get this from here
   * use the yolov3.weights file you downloaded
-- savedir: Directory to save all the predictions of the model
-- boxdir (optional):  Directory to save all the actual images wit ground truth boxes
+- savedir: directory to save all the predictions of the model
+- boxdir (optional): directory to save all the actual images wit ground truth boxes
 
 # Custom Object Detection
 
@@ -77,6 +77,23 @@ $ !python3 train.py --traindir train/ --validdir valid/ --cfg yolov3custom.cfg -
 - cfg: the custom model config file created by createmodel.sh (use the yolov3custom.cfg from the previous step)
 - ptweights: pre-trained weights (use the darknet53.conv.74 weights downloaded, refer step 7 [here](https://github.com/asceznyk/oddnet/blob/main/README.md#7-download-pre-trained-darknet53conv74-weights-for-custom-object-detection)
 - epochs: number of epochs to train the model
-- ckptpth: checkpoint path, the path to save your model in
+- ckptpth: checkpoint path, the path to save your model while training
 - lossfn: loss function, you have two loss functions bboxloss and iouloss, it is best to use bboxloss because iouloss is broken (if you can find a creative way to fix, great! please ping me on asceznyk@gmail.com
 - patience: this is the number of epochs to wait on stagnation of validation loss in order to stop training, the default value is 10 but you can change it to whatever you like
+
+## Detect custom objects
+```
+$ python detect.py --testdir test --names yournames.labels --cfg yolov3custom.cfg --weights pathtochekpt.pth --savedir outputs --boxdir gtruths 
+```
+### Arguments:
+- testdir: the directory with all the test images ONLY
+- names: is a text file with all the names of classes in it like so:
+```
+class1
+class2
+class3
+```
+- cfg: is a model configuration file (use the yolov3custom.cfg from the first step)
+- weights: checkpoint path, the same checkpoint path from the previous step
+- savedir: directory to save all the predictions of the model
+- boxdir (optional): directory to save all the actual images wit ground truth boxes
