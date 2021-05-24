@@ -39,7 +39,7 @@ $ mkdir outputs/ gtruths/model
 
 # Plain Object Detection
 
-## Run the command
+## Start detecting objects
 ```
 $ python detect.py --testdir test --names yournames.labels --cfg yolov3.cfg --weights yolov3.weights --savedir outputs --boxdir gtruths
 ```
@@ -67,7 +67,7 @@ $ bash createmodel.sh nclasses
 - here nclasses is the number of classes
 - running this command will create a file called yolov3custom.cfg (this will be used in the next step)
 
-## 2. Run the command
+## 2. Train the model
 ```
 $ !python3 train.py --traindir train/ --validdir valid/ --cfg yolov3custom.cfg --ptweights darknet53.conv.74  --epochs 100 --ckptpth pathtochekpt.pth --lossfn bboxloss --patience 1000
 ```
@@ -81,7 +81,7 @@ $ !python3 train.py --traindir train/ --validdir valid/ --cfg yolov3custom.cfg -
 - lossfn: loss function, you have two loss functions bboxloss and iouloss, it is best to use bboxloss because iouloss is broken (if you can find a creative way to fix, great! please ping me on asceznyk@gmail.com
 - patience: this is the number of epochs to wait on stagnation of validation loss in order to stop training, the default value is 10 but you can change it to whatever you like
 
-## Detect custom objects
+## 3. Detect custom objects
 ```
 $ python detect.py --testdir test --names yournames.labels --cfg yolov3custom.cfg --weights pathtochekpt.pth --savedir outputs --boxdir gtruths 
 ```
