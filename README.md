@@ -20,7 +20,7 @@ $ mkdir outputs/ gtruths/model
 ## 4. Download the .cfg file
 - link for .cfg file https://github.com/pjreddie/darknet/blob/master/cfg/yolov3.cfg
 
-## 5. Download pre-trained darknet53.conv.74 weights
+## 5. Download pre-trained darknet53.conv.74 weights (for custom object detection)
 - link for weights https://pjreddie.com/media/files/darknet53.conv.74
 
 # How to use oddnet for: 
@@ -47,3 +47,6 @@ class3
   * use the yolov3.weights file you downloaded
 - savedir: Directory to save all the predictions of the model
 - boxdir (optional):  Directory to save all the actual images wit ground truth boxes
+
+# Custom Object Detection
+
