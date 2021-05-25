@@ -34,15 +34,15 @@ $ mkdir outputs/ gtruths/model
 - link for weights https://pjreddie.com/media/files/darknet53.conv.74
 
 # The format of dataset
-1. images must be .jpg/.png files
-2. create a .names file to store all the class names:
+## 1. images must be .jpg/.png files
+## 2. create a .names file to store all the class names:
 ```
 class1
 class2
 class3
 ```
 each line in the .names file should be used for exactly 1 class
-3. labels must be .txt files containing the boxes in follwing format:
+## 3. labels must be .txt files containing the boxes in follwing format:
 ```
 c1 x y w h
 c2 x y w h
