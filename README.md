@@ -33,6 +33,28 @@ $ mkdir outputs/ gtruths/model
 ## 7. Download pre-trained darknet53.conv.74 weights (for custom object detection)
 - link for weights https://pjreddie.com/media/files/darknet53.conv.74
 
+# The format of dataset
+1. images must be .jpg/.png files
+2. create a .names file to store all the class names:
+```
+class1
+class2
+class3
+```
+each line in the .names file should be used for exactly 1 class
+3. labels must be .txt files containing the boxes in follwing format:
+```
+c1 x y w h
+c2 x y w h
+```
+- the x, y, w, h values must be between 0 and 1
+- the c1, c2 values are the corresponding class indices depending on the .names file fog e.g:
+```
+class1 => c1 => 0
+class2 => c2 => 1
+```
+the indices start at 0
+
 # How to use oddnet for: 
 1. Plain Object Detection 
 2. Custom Object Detection
@@ -46,11 +68,6 @@ $ python detect.py --testdir test --names yournames.labels --cfg yolov3.cfg --we
 ### Arguments:
 - testdir: the directory with all the test images ONLY
 - names: is a text file with all the names of classes in it like so:
-```
-class1
-class2
-class3
-```
 - cfg: is a model configuration file (this is for model architecture)
   * use the yolov3.cfg file you downloaded 
 - weights: is a .pth or a .weights file you can get this from here
