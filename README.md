@@ -34,26 +34,38 @@ $ mkdir outputs/ gtruths/model
 - link for weights https://pjreddie.com/media/files/darknet53.conv.74
 
 # The format of dataset
+
 ## 1. images must be .jpg/.png files
+
 ## 2. create a .names file to store all the class names:
 ```
 class1
 class2
 class3
 ```
-each line in the .names file should be used for exactly 1 class
+- each line in the .names file should be used for exactly 1 class
+
 ## 3. labels must be .txt files containing the boxes in follwing format:
 ```
 c1 x y w h
 c2 x y w h
+c3 x y w h
 ```
 - the x, y, w, h values must be between 0 and 1
-- the c1, c2 values are the corresponding class indices depending on the .names file fog e.g:
+- c1, c2, c3 are numeric IDs or indexes, the first line in the .names file corresponds to the index 0 and the second line to 1 and so on:
 ```
-class1 => c1 => 0
-class2 => c2 => 1
+in the .names file:
+
+class1
+class2
+class3
+
+the index for these classes:
+
+0
+1
+2
 ```
-the indices start at 0
 
 # How to use oddnet for: 
 1. Plain Object Detection 
