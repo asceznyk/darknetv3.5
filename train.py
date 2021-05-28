@@ -126,6 +126,8 @@ def train_darknet(options):
                 outputs = model(imgs.to(device), 'train')
                 loss = criterion(outputs, targets.to(device))
 
+                compute_map(outputs[0], targets)
+
             scaler.scale(loss).backward()
 
             if batchesdone % accumgradient == 0:
@@ -155,9 +157,7 @@ def train_darknet(options):
                 #targets = Variable(targets.to(device), requires_grad=False)
 
                 outputs = model(Variable(imgs.to(device), requires_grad=False), 'train')
-                loss = criterion(outputs, Variable(targets.to(device), requires_grad=False))
-
-                compute_map(outputs, targets)
+                loss = criterion(outputs, Variable(targets.to(device), requires_grad=False)) 
 
                 batchloss = to_cpu(loss).item()
                 epochloss += batchloss
