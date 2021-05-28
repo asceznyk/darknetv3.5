@@ -52,7 +52,7 @@ def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
         groundtruths = []
 
         for detection in predictions:
-            if detections[1] == c:
+            if detection[1] == c:
                 detections.append(detection)
 
         for gtbox in targets:
