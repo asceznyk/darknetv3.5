@@ -154,7 +154,7 @@ def train_darknet(options):
                 #imgs = Variable(imgs.to(device), requires_grad=False)
                 #targets = Variable(targets.to(device), requires_grad=False)
 
-                outputs = model(Variable(imgs.to(device), requires_grad=False), 'train') 
+                outputs = model(Variable(imgs.to(device), requires_grad=False), 'train')
                 loss = criterion(outputs, Variable(targets.to(device), requires_grad=False))
 
                 compute_map(outputs, targets)
