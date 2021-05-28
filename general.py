@@ -162,7 +162,7 @@ def nonmax_supression(prediction, confthresh=0.5, iouthresh=0.4):
     '''
     B = 10647 for a 416x416 image with scales (13, 26, 52)
     prediction shape:(N, B, C+5) eval:(bx, by, bw, bh, po, [p1, ... pc])
-    returns outputs which is a list of tensors
+    returns outputs which is a list of tensors for each image
     '''
 
     prediction[..., :4] = xywh_xyxy(prediction[..., :4])
@@ -173,7 +173,7 @@ def nonmax_supression(prediction, confthresh=0.5, iouthresh=0.4):
 
         if not pi.size(0):
             continue
- 
+
         scores = pi[:, 4] * pi[:, 5:].max(1)[0]
         pi = pi[(-scores).argsort()]
         confs, idxs = pi[:, 5:].max(1, keepdim=True)
@@ -193,7 +193,7 @@ def nonmax_supression(prediction, confthresh=0.5, iouthresh=0.4):
 
         if keepbox:
             outputs[i] = torch.stack(keepbox)
-  
+
     return outputs
 
 def build_targets(targets, sclanchors, predclasses, predboxes, ignthresh, mode='logitbox'):
