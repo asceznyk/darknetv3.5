@@ -4,8 +4,24 @@ from collections import Counter
 from general import *
 
 def compute_map(predictions, targets):
+    '''
+    detections each contents: (x1, y1, x2, y2, p1, p2, c)
+    targets contents: (b, c, x, y, w, h)
+    '''
     detections = nonmax_supression(predictions)
-    print([d for d in detections if d != None], targets.size())
+
+    preds = []
+    for i, d in enumerate(detections):
+        bbox = torch.zeros(7)
+        bbox[0] = i
+        bbox[1] = d[-1]
+        bbox[2] = d[-3]
+        bbox[3:7] = d[:4]
+        preds.append(bbox)
+
+    print(preds)
+
+
 
 def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
     '''
