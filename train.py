@@ -54,9 +54,11 @@ def train_darknet(options):
     ncpu = options.ncpu
     ckptinterval = 2
 
-    model = Darknet(cfgpath, imgwh=imgsize).to(device) 
+    model = Darknet(cfgpath, imgwh=imgsize).to(device)
 
     print(model)
+
+    nclasses = model.nclasses
 
     ema = ModelEMA(model)
 
@@ -126,7 +128,7 @@ def train_darknet(options):
                 outputs = model(imgs.to(device), 'train')
                 loss = criterion(outputs, targets.to(device))
 
-                compute_map(model(imgs.to(device)), targets, imgsize)
+                compute_map(model(imgs.to(device)), targets, imgsize, nclasses)
 
             scaler.scale(loss).backward()
 

@@ -3,7 +3,7 @@ from collections import Counter
 
 from general import *
 
-def compute_map(predictions, targets, imgsize):
+def compute_map(predictions, targets, imgsize, nclasses):
     '''
     detections each contents: (x1, y1, x2, y2, p1, p2, c)
     targets contents: (b, c, x, y, w, h)
@@ -28,9 +28,9 @@ def compute_map(predictions, targets, imgsize):
         bbox[1] = tbox[1]
         bbox[2] = 1
         bbox[3:7] = xywh_xyxy(tbox[2:6] * imgsize)
-        trgts.append(bbox) 
+        trgts.append(bbox)
 
-    mean_ap(predictions)
+    mean_ap(predictions, targets)
 
 def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
     '''

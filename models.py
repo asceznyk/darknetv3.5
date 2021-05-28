@@ -123,19 +123,20 @@ def create_module(blocks, imgwh):
             anchors = [int(x) for x in block['anchors'].split(',')]
             anchors = [(anchors[i], anchors[i+1]) for i in range(0, len(anchors), 2)]
             anchors = [anchors[m] for m in mask]
+            nclasses = int(block['classes'])
             module.add_module(f'yolo_{l}', YOLO(anchors, int(block['classes']), imgwh))
 
         modulelist.append(module)
         outfilters.append(filters)
 
-    return hyperparams, modulelist
+    return hyperparams, modulelist, nclasses
 
 class Darknet(nn.Module):
     def __init__(self, cfgpath, imgwh=416):
         super(Darknet, self).__init__()
         self.imgwh = imgwh
         self.blocks = parse_blocks(cfgpath)
-        self.hyperparams, self.modulelist = create_module(self.blocks, self.imgwh)
+        self.hyperparams, self.modulelist, self.nclasses = create_module(self.blocks, self.imgwh)
 
         initialize_weights(self)
     
