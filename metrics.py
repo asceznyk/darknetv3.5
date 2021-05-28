@@ -12,16 +12,15 @@ def compute_map(predictions, targets):
 
     preds = []
     for i, d in enumerate(detections):
-        bbox = torch.zeros(7)
-        bbox[0] = i
-        bbox[1] = d[-1]
-        bbox[2] = d[-3]
-        bbox[3:7] = d[:4]
-        preds.append(bbox)
+        for j, pbox in enumerate(d):
+            bbox = torch.zeros(7)
+            bbox[0] = i
+            bbox[1] = pbox[-1]
+            bbox[2] = pbox[-3]
+            bbox[3:7] = pbox[:4]
+            preds.append(bbox)
 
     print(preds)
-
-
 
 def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
     '''
