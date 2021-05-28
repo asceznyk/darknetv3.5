@@ -3,7 +3,7 @@ from collections import Counter
 
 from general import *
 
-def compute_map(predictions, targets):
+def compute_map(predictions, targets, imgsize):
     '''
     detections each contents: (x1, y1, x2, y2, p1, p2, c)
     targets contents: (b, c, x, y, w, h)
@@ -12,15 +12,27 @@ def compute_map(predictions, targets):
 
     preds = []
     for i, d in enumerate(detections):
-        for j, pbox in enumerate(d):
-            bbox = torch.zeros(7)
-            bbox[0] = i
-            bbox[1] = pbox[-1]
-            bbox[2] = pbox[-3]
-            bbox[3:7] = pbox[:4]
-            preds.append(bbox)
+        if d != None:
+            for j, pbox in enumerate(d):
+                bbox = torch.zeros(7)
+                bbox[0] = i
+                bbox[1] = pbox[-1]
+                bbox[2] = pbox[-3]
+                bbox[3:7] = pbox[:4]
+                preds.append(bbox)
 
     print(preds)
+
+    trgts = []
+    for i, tbox in enumerate(targets):
+        bbox = torch.zeros(7)
+        bbox[0] = tbox[0]
+        bbox[1] = tbox[1]
+        bbox[2] = 1
+        bbox[3:7] = xywh_xyxy(tbox[2:6] * imgsize)
+        trgts.append(bbox)
+
+    print(trgts)
 
 def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
     '''
