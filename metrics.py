@@ -68,7 +68,7 @@ def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
         #countgtboxs = Counter([int(gt[0]) for gt in groundtruths])
         countgtboxs = {}
         for gtbox in groundtruths:
-            idx = int(gtbox)[0]
+            idx = int(gtbox[0])
             if idx not in countgtboxs:
                 countgtboxs[idx] = 1
             else:
