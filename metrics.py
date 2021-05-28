@@ -59,7 +59,7 @@ def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
             if gtbox[1] == c:
                 groundtruths.append(gtbox)
 
-        countgtboxs = Counter([gt[0] for gt in groundtruths])
+        countgtboxs = Counter([gt[0].item() for gt in groundtruths])
         for k, v in countgtboxs.items():
             countgtboxs[k] = torch.zeros(v)
 
