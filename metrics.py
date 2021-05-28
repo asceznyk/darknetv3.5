@@ -21,8 +21,6 @@ def compute_map(predictions, targets, imgsize):
                 bbox[3:7] = pbox[:4]
                 preds.append(bbox)
 
-    print(preds)
-
     trgts = []
     for i, tbox in enumerate(targets):
         bbox = torch.zeros(7)
@@ -30,15 +28,15 @@ def compute_map(predictions, targets, imgsize):
         bbox[1] = tbox[1]
         bbox[2] = 1
         bbox[3:7] = xywh_xyxy(tbox[2:6] * imgsize)
-        trgts.append(bbox)
+        trgts.append(bbox) 
 
-    print(trgts)
+    mean_ap(predictions)
 
 def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
     '''
     Arguments:
-    predictions: list of tensors: shape(B, 6) contents(b, c, p, x1, y1, x2, y2)
-    targets: list of tensors: shape(B, 6) contents(b, c, p, x1, y1, x2, y2)
+    predictions: list of tensors: shape: (B, 6) contents: (b, c, p, x1, y1, x2, y2)
+    targets: list of tensors: shape: (B, 6) contents: (b, c, p, x1, y1, x2, y2)
     nclasses: number of classes
     iouthresh: IoU threshold
 
@@ -55,5 +53,22 @@ def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
 
         for detection in predictions:
             if detections[1] == c:
-                detections.append(c)
+                detections.append(detection)
+
+        for gtbox in targets:
+            if gtbox[1] == c:
+                groundtruths.append(gtbox)
+
+        countgtboxs = Counter([gt[0] for gt in groundtruths])
+        for k, v in countgtboxs.items():
+            countgtboxs[k] = torch.zeros(v)
+
+        detections.sort(key=lambda x: x[2], reverse=True)
+
+        print(detections)
+        print(countgtboxs)
+
+        #for i, detection in enumerate(detections):
+
+
 
