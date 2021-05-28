@@ -53,17 +53,17 @@ def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
 
         for detection in predictions:
             if detection[1] == c:
-                detections.append(detection)
+                detections.append(detection.tolist())
 
         for gtbox in targets:
             if gtbox[1] == c:
-                groundtruths.append(gtbox)
+                groundtruths.append(gtbox.tolist())
 
         print('groundtruths: ', groundtruths)
         print('---')
         print('detections: ', detections)
 
-        countgtboxs = Counter([gt.tolist()[0] for gt in groundtruths])
+        countgtboxs = Counter([int(gt[0]) for gt in groundtruths])
         for k, v in countgtboxs.items():
             countgtboxs[k] = torch.zeros(v)
 
