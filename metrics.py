@@ -5,7 +5,7 @@ from general import *
 
 def compute_map(predictions, targets):
     detections = nonmax_supression(predictions)
-    print([d.size() for d in detections if d not None], targets.size())
+    print([d.size() for d in detections if d != None], targets.size())
 
 def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
     '''
