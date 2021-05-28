@@ -4,6 +4,7 @@ from collections import Counter
 from general import *
 
 def compute_map(predictions, targets):
+    nonmax_supression(predictions)
     print(predictions, targets.size())
 
 def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
