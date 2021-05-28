@@ -126,7 +126,7 @@ def train_darknet(options):
                 outputs = model(imgs.to(device), 'train')
                 loss = criterion(outputs, targets.to(device))
 
-                compute_map(outputs[0], targets)
+                compute_map(model(imgs.to(device)), targets)
 
             scaler.scale(loss).backward()
 
