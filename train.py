@@ -25,6 +25,7 @@ from augmentations import *
 from models import *
 from losses import *
 from datasets import *
+from metrics import *
 
 cuda = torch.cuda.is_available()
 device = torch.device("cuda" if cuda else "cpu")
