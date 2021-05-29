@@ -30,7 +30,7 @@ def compute_map(predictions, targets, imgsize, nclasses):
         bbox[3:7] = xywh_xyxy(tbox[2:6] * imgsize)
         trgts.append(bbox)
 
-    mean_ap(preds, trgts, nclasses)
+    print(mean_ap(preds, trgts, nclasses))
 
 def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
     '''
@@ -103,8 +103,8 @@ def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
         FPcumsum = torch.cumsum(FP, dim=0)
         recalls = TPcumsum / (totalgts + epsilon)
         precisions = TPcumsum / (TPcumsum + FPcumsum + epsilon)
-        recalls = torch.cat(torch.tensor([0]), recalls)
-        precisions = torch.cat(torch.tensors[1], precisions)
+        recalls = torch.cat((torch.tensor([0])), recalls)
+        precisions = torch.cat((torch.tensors[1]), precisions)
         aps.append(torch.trapz(precisions, recalls))
 
     return sum(aps) / len(aps)
