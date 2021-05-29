@@ -105,7 +105,7 @@ def train_darknet(options):
     nbs = 64
     nw = max(round(hyp['warmupepochs'] * len(trainloader)), 1000)
 
-    bestloss = 1e+5
+    bestmap = 0
     patience = options.patience
     orgpatience = patience
     for e in range(epochs):
@@ -136,7 +136,7 @@ def train_darknet(options):
                 optimizer.zero_grad()
 
                 if ema:
-                    print(f'updated ema weights! at batch {b} epoch {e}')
+                    #print(f'updated ema weights! at batch {b} epoch {e}')
 
                     ema.update(model)
 
@@ -151,15 +151,16 @@ def train_darknet(options):
 
         model.eval()
         epochloss = 0
+        meanap = 0
         for b, (_, imgs, targets) in enumerate(validloader):
             with torch.no_grad():
                 #imgs = Variable(imgs.to(device), requires_grad=False)
                 #targets = Variable(targets.to(device), requires_grad=False)
 
                 outputs = model(Variable(imgs.to(device), requires_grad=False), 'train')
-                loss = criterion(outputs, Variable(targets.to(device), requires_grad=False)) 
+                loss = criterion(outputs, Variable(targets.to(device), requires_grad=False))
 
-                compute_map(model(imgs.to(device)), targets, imgsize, nclasses)
+                meanap += compute_map(model(imgs.to(device)), targets, imgsize, nclasses)
 
                 batchloss = to_cpu(loss).item()
                 epochloss += batchloss
@@ -167,13 +168,15 @@ def train_darknet(options):
             print(f'validation loss at batch {b}: {batchloss:.3f}')
 
         epochloss /= len(validloader)
+        meanap /= len(validloader)
 
         print(f'validation loss at epoch {e}: {epochloss:.3f}')
+        print(f'mAP at epoch {e}: {meanap:.3f}')
 
         scheduler.step()
 
         patience -= 1
-        if epochloss <= bestloss:
+        if meanap >= bestmap:
             ckpt = msd = model.state_dict()
             if ema:
                 ckpt = {
@@ -181,7 +184,7 @@ def train_darknet(options):
                     'ema':ema.ema.state_dict()
                 }
             torch.save(ckpt, ckptpth)
-            bestloss = epochloss
+            bestmap = meanap
             patience = orgpatience
 
             print(f'saved best model weights at epoch {e} to {ckptpth}')
