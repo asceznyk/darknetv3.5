@@ -128,8 +128,6 @@ def train_darknet(options):
                 outputs = model(imgs.to(device), 'train')
                 loss = criterion(outputs, targets.to(device))
 
-                compute_map(model(imgs.to(device)), targets, imgsize, nclasses)
-
             scaler.scale(loss).backward()
 
             if batchesdone % accumgradient == 0:
@@ -160,6 +158,8 @@ def train_darknet(options):
 
                 outputs = model(Variable(imgs.to(device), requires_grad=False), 'train')
                 loss = criterion(outputs, Variable(targets.to(device), requires_grad=False)) 
+
+                compute_map(model(imgs.to(device)), targets, imgsize, nclasses)
 
                 batchloss = to_cpu(loss).item()
                 epochloss += batchloss
