@@ -103,8 +103,8 @@ def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
         FPcumsum = torch.cumsum(FP, dim=0)
         recalls = TPcumsum / (totalgts + epsilon)
         precisions = TPcumsum / (TPcumsum + FPcumsum + epsilon)
-        recalls = torch.cat((torch.tensor([0])), recalls)
-        precisions = torch.cat((torch.tensors[1]), precisions)
+        recalls = torch.cat((torch.tensor([0]), recalls))
+        precisions = torch.cat((torch.tensors[1], precisions))
         aps.append(torch.trapz(precisions, recalls))
 
     return sum(aps) / len(aps)
