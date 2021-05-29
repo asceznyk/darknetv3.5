@@ -136,8 +136,6 @@ def train_darknet(options):
                 optimizer.zero_grad()
 
                 if ema:
-                    #print(f'updated ema weights! at batch {b} epoch {e}')
-
                     ema.update(model)
 
             batchloss = to_cpu(loss).item()
@@ -171,7 +169,7 @@ def train_darknet(options):
         meanap /= len(validloader)
 
         print(f'validation loss at epoch {e}: {epochloss:.3f}')
-        print(f'mAP at epoch {e}: {meanap:.3f}')
+        print(f'mAP@0.5 on validation set at epoch {e}: {meanap:.3f}')
 
         scheduler.step()
 
