@@ -30,7 +30,7 @@ def compute_map(predictions, targets, imgsize, nclasses):
         bbox[3:7] = xywh_xyxy(tbox[2:6] * imgsize)
         trgts.append(bbox)
 
-    print(mean_ap(preds, trgts, nclasses))
+    return mean_ap(preds, trgts, nclasses).detach().cpu().item()
 
 def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
     '''
