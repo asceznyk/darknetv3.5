@@ -3,7 +3,7 @@ from collections import Counter
 
 from general import *
 
-def compute_map(predictions, targets, imgsize, nclasses):
+def compute_map(predictions, targets, imgsize, nclasses, startiou=0.5, endiou=0.75):
     '''
     detections each contents: (x1, y1, x2, y2, p1, p2, c)
     targets contents: (b, c, x, y, w, h)
@@ -30,7 +30,15 @@ def compute_map(predictions, targets, imgsize, nclasses):
         bbox[3:7] = xywh_xyxy(tbox[2:6] * imgsize)
         trgts.append(bbox)
 
-    return mean_ap(preds, trgts, nclasses).detach().cpu().item()
+    avgap = 0
+    count = 0
+    currentiou = startiou
+    while currentiou <= endiou:
+        avgap += mean_ap(preds, trgts, nclasses, iouthresh=currentiou).detach().cpu().item()
+        currentiou += 0.05
+        count += 1
+
+    return avgap/count
 
 def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
     '''
@@ -59,7 +67,6 @@ def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
             if gtbox[1] == c:
                 groundtruths.append(gtbox.tolist())
 
-        #countgtboxs = Counter([int(gt[0]) for gt in groundtruths])
         countgtboxs = {}
         for gtbox in groundtruths:
             idx = int(gtbox[0])
@@ -68,7 +75,6 @@ def mean_ap(predictions, targets, nclasses, iouthresh=0.5):
             else:
                 countgtboxs[idx] += 1
 
-        #print(countgtboxs)
         for k, v in countgtboxs.items():
             countgtboxs[k] = torch.zeros(v)
 
