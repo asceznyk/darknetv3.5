@@ -3,7 +3,7 @@ from collections import Counter
 
 from general import *
 
-def compute_map(predictions, targets, imgsize, nclasses, startiou=0.5, endiou=0.75):
+def compute_map(predictions, targets, imgsize, nclasses, startiou=0.5, endiou=0.95):
     '''
     detections each contents: (x1, y1, x2, y2, p1, p2, c)
     targets contents: (b, c, x, y, w, h)

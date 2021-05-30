@@ -169,7 +169,7 @@ def train_darknet(options):
         meanap /= len(validloader)
 
         print(f'validation loss at epoch {e}: {epochloss:.3f}')
-        print(f'mAP@.5:.05:.75 on validation set at epoch {e}: {meanap:.3f}')
+        print(f'mAP@.5:.05:.95 on validation set at epoch {e}: {meanap:.3f}')
 
         scheduler.step()
 
